@@ -349,6 +349,31 @@
   }
   .foot-note .heart{color:var(--heart-pink);}
 
+  .music-btn{
+    position:absolute;
+    top:-14px;
+    right:-14px;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border:2px solid var(--asphalt);
+    background:linear-gradient(135deg, var(--heart-pink), var(--heart-pink-deep));
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 8px 18px -6px rgba(255,107,147,0.6);
+    z-index:5;
+    transition:transform .15s ease;
+  }
+  .music-btn:active{transform:scale(0.92);}
+  .music-btn.is-muted{
+    background:linear-gradient(135deg, #4b4f58, #363a42);
+    box-shadow:none;
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important; transition:none !important;}
   }
@@ -366,6 +391,10 @@
   <div class="card" id="card">
     <!-- content injected by JS -->
   </div>
+  <button class="music-btn" id="music-toggle" aria-label="Couper / activer la musique" title="Musique">🎵</button>
+  <audio id="bgm" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
   <p class="foot-note" id="footnote">Basé sur la banque officielle de vérifications du permis (DSR/BRPCE) <span class="heart">♥</span></p>
 </div>
 
@@ -493,6 +522,30 @@ const CAT_CLASS = { route: "badge-route", secours: "badge-secours", voyant: "bad
 const CAR_ICONS = ["🚗","🚙","🚓"];
 
 const card = document.getElementById('card');
+const bgm = document.getElementById('bgm');
+const musicToggle = document.getElementById('music-toggle');
+let musicMuted = false;
+
+bgm.volume = 0.45;
+
+musicToggle.addEventListener('click', () => {
+  musicMuted = !musicMuted;
+  musicToggle.classList.toggle('is-muted', musicMuted);
+  musicToggle.textContent = musicMuted ? '🔇' : '🎵';
+  if(musicMuted){
+    bgm.pause();
+  } else {
+    bgm.play().catch(() => {});
+  }
+});
+
+function startMusic(){
+  if(!musicMuted){
+    bgm.play().catch(() => {
+      // Le fichier music.mp3 n'est peut-être pas encore présent dans le dossier — pas grave, le site fonctionne sans.
+    });
+  }
+}
 
 function shuffle(arr){
   const a = arr.slice();
@@ -531,6 +584,7 @@ function renderStart(){
     <button class="btn btn-primary" id="start-btn">Démarrer le quiz</button>
   `;
   document.getElementById('start-btn').addEventListener('click', () => {
+    startMusic();
     buildQuiz();
     renderQuestion();
   });
